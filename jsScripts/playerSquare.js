@@ -12,16 +12,24 @@ var PlayerSquare = (function (_super) {
         return this.position;
     };
     PlayerSquare.prototype.moveLeft = function (squareSize) {
-        this.position.x -= squareSize;
+        if (this.position.x - squareSize >= 0) {
+            this.position.x -= squareSize;
+        }
     };
-    PlayerSquare.prototype.moveRight = function (squareSize) {
-        this.position.x += squareSize;
+    PlayerSquare.prototype.moveRight = function (squareSize, mapSize) {
+        if (this.position.x < mapSize.width - squareSize) {
+            this.position.x += squareSize;
+        }
     };
     PlayerSquare.prototype.moveUp = function (squareSize) {
-        this.position.y -= squareSize;
+        if (this.position.y - squareSize >= 0) {
+            this.position.y -= squareSize;
+        }
     };
-    PlayerSquare.prototype.moveDown = function (squareSize) {
-        this.position.y += squareSize;
+    PlayerSquare.prototype.moveDown = function (squareSize, mapSize) {
+        if (this.position.y < mapSize.height - squareSize) {
+            this.position.y += squareSize;
+        }
     };
     return PlayerSquare;
 }(Square));

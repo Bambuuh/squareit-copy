@@ -9,17 +9,25 @@ class PlayerSquare extends Square {
     }
 
     public moveLeft(squareSize: number) {
-        this.position.x -= squareSize;
+        if (this.position.x - squareSize >= 0) {
+            this.position.x -= squareSize;
+        }
     }
-    public moveRight(squareSize: number) {
-        this.position.x += squareSize;
+    public moveRight(squareSize: number, mapSize: { width:number, height: number}) {
+        if (this.position.x < mapSize.width - squareSize) {
+            this.position.x += squareSize;
+        }
     }
 
     public moveUp(squareSize: number) {
-        this.position.y -= squareSize;
+        if (this.position.y - squareSize >= 0) {
+            this.position.y -= squareSize;
+        }
     }
 
-    public moveDown(squareSize: number) {
-        this.position.y += squareSize;
+    public moveDown(squareSize: number, mapSize: { width:number, height: number}) {
+        if (this.position.y < mapSize.height - squareSize) {
+            this.position.y += squareSize;
+        }
     }
 }

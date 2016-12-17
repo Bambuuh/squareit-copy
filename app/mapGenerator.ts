@@ -8,7 +8,7 @@ class MapGenerator {
         for (let i = 0; i < 5; i++) {
             const column = [];
             for (let j = 0; j < 7; j++) {
-                column.push(new Square(i * squareSize, j * squareSize));
+                column.push(new FieldSquare(i * squareSize, j * squareSize));
             }
             map.push(column);
         }

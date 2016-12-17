@@ -3,9 +3,9 @@ var Game = (function () {
         var _this = this;
         this.lastTime = Date.now();
         this.mapGenerator = new MapGenerator();
+        this.squareSize = 40;
         this.playerSquareOne = new PlayerSquare(0, 0);
         this.playerSquareTwo = new PlayerSquare(this.squareSize * 2, 0);
-        this.squareSize = this.playerSquareOne.getSize();
         this.mapSettings = {
             empty: [
                 { x: 1 * this.squareSize, y: 0 },
@@ -24,6 +24,26 @@ var Game = (function () {
             _this.lastTime = now;
             requestAnimationFrame(_this.gameLoop);
         };
+        this.movePLayer = function (event) {
+            switch (event.keyCode) {
+                case 37:
+                    game.playerSquareOne.moveLeft(_this.squareSize);
+                    game.playerSquareTwo.moveLeft(_this.squareSize);
+                    break;
+                case 38:
+                    game.playerSquareOne.moveUp(_this.squareSize);
+                    game.playerSquareTwo.moveUp(_this.squareSize);
+                    break;
+                case 39:
+                    game.playerSquareOne.moveRight(_this.squareSize, _this.mapSize);
+                    game.playerSquareTwo.moveRight(_this.squareSize, _this.mapSize);
+                    break;
+                case 40:
+                    game.playerSquareOne.moveDown(_this.squareSize, _this.mapSize);
+                    game.playerSquareTwo.moveDown(_this.squareSize, _this.mapSize);
+                    break;
+            }
+        };
     }
     Game.prototype.setupCanvas = function (canvas) {
         this.canvas = canvas;
@@ -38,50 +58,25 @@ var Game = (function () {
         var _this = this;
         this.map.forEach(function (column) {
             column.forEach(function (square) {
-                if (_this.mapSettings.empty.every(function (empty) { return empty.x !== square.getPosition().x || empty.y !== square.getPosition().y; })) {
-                    _this.context.fillStyle = square.getColor();
-                    _this.context.fillRect(square.getPosition().x, square.getPosition().y, _this.squareSize, _this.squareSize);
-                }
+                // if (this.mapSettings.empty.every(empty => empty.x !== square.getPosition().x || empty.y !== square.getPosition().y)) {
+                _this.context.fillStyle = square.getColor();
+                _this.context.fillRect(square.getPosition().x, square.getPosition().y, _this.squareSize, _this.squareSize);
+                // }
             });
         });
     };
     Game.prototype.drawPLayerSquares = function () {
-        this.renderPlayer(this.playerSquareOne);
-        this.renderPlayer(this.playerSquareTwo);
+        this.renderPlayer(this.playerSquareOne, 'red');
+        this.renderPlayer(this.playerSquareTwo, 'blue');
     };
-    Game.prototype.renderPlayer = function (playerSquare) {
-        var _this = this;
-        var positions = playerSquare.getPositions();
-        var lastIndex = positions.length - 1;
-        positions.forEach(function (position, index) {
-            _this.context.fillStyle = index === lastIndex ? 'blue' : 'red'; // #ffffe5
-            _this.context.fillRect(position.x, position.y, _this.squareSize, _this.squareSize);
-        });
+    Game.prototype.renderPlayer = function (playerSquare, color) {
+        this.context.fillStyle = color; // #ffffe5
+        this.context.fillRect(playerSquare.getPosition().x, playerSquare.getPosition().y, this.squareSize, this.squareSize);
     };
     Game.prototype.resizeCanvas = function () {
         this.canvas.width = this.mapSize.width;
         this.canvas.height = this.mapSize.height;
         this.render();
-    };
-    Game.prototype.movePLayer = function (event) {
-        switch (event.keyCode) {
-            case 37:
-                game.playerSquareOne.moveLeft();
-                game.playerSquareTwo.moveLeft();
-                break;
-            case 38:
-                game.playerSquareOne.moveUp();
-                game.playerSquareTwo.moveUp();
-                break;
-            case 39:
-                game.playerSquareOne.moveRight();
-                game.playerSquareTwo.moveRight();
-                break;
-            case 40:
-                game.playerSquareOne.moveDown();
-                game.playerSquareTwo.moveDown();
-                break;
-        }
     };
     return Game;
 }());

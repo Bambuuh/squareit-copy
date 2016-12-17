@@ -3,10 +3,10 @@ class Game {
     public context: CanvasRenderingContext2D;
     private lastTime = Date.now();
     private mapGenerator = new MapGenerator();
+    private squareSize = 40;
+
     public playerSquareOne = new PlayerSquare(0, 0);
     public playerSquareTwo = new PlayerSquare(this.squareSize * 2, 0);
-
-    private squareSize = this.playerSquareOne.getSize();
 
     private mapSettings = {
         empty: [
@@ -46,26 +46,22 @@ class Game {
     private drawMap() {
         this.map.forEach(column => {
             column.forEach(square => {
-                if (this.mapSettings.empty.every(empty => empty.x !== square.getPosition().x || empty.y !== square.getPosition().y)) {
+                // if (this.mapSettings.empty.every(empty => empty.x !== square.getPosition().x || empty.y !== square.getPosition().y)) {
                     this.context.fillStyle = square.getColor();
                     this.context.fillRect(square.getPosition().x, square.getPosition().y, this.squareSize, this.squareSize);
-                }
+                // }
             });
         });
     }
 
     private drawPLayerSquares() {
-        this.renderPlayer(this.playerSquareOne);
-        this.renderPlayer(this.playerSquareTwo);
+        this.renderPlayer(this.playerSquareOne, 'red');
+        this.renderPlayer(this.playerSquareTwo, 'blue');
     }
 
-    private renderPlayer(playerSquare: PlayerSquare) {
-        const positions = playerSquare.getPositions();
-        const lastIndex = positions.length - 1;
-        positions.forEach((position, index) => {
-            this.context.fillStyle = index === lastIndex ? 'blue' : 'red'; // #ffffe5
-            this.context.fillRect(position.x, position.y, this.squareSize, this.squareSize);
-        });
+    private renderPlayer(playerSquare: PlayerSquare, color: string) {
+        this.context.fillStyle = color // #ffffe5
+        this.context.fillRect(playerSquare.getPosition().x, playerSquare.getPosition().y, this.squareSize, this.squareSize);
     }
 
     public resizeCanvas() {
@@ -75,26 +71,26 @@ class Game {
         this.render();
     }
 
-    public movePLayer(event) {
+    public movePLayer = (event) => {
         switch (event.keyCode) {
             case 37: // Left
-                game.playerSquareOne.moveLeft();
-                game.playerSquareTwo.moveLeft();
+                game.playerSquareOne.moveLeft(this.squareSize);
+                game.playerSquareTwo.moveLeft(this.squareSize);
                 break;
 
             case 38: // Up
-                game.playerSquareOne.moveUp();
-                game.playerSquareTwo.moveUp();
+                game.playerSquareOne.moveUp(this.squareSize);
+                game.playerSquareTwo.moveUp(this.squareSize);
                 break;
 
             case 39: // Right
-                game.playerSquareOne.moveRight();
-                game.playerSquareTwo.moveRight();
+                game.playerSquareOne.moveRight(this.squareSize, this.mapSize);
+                game.playerSquareTwo.moveRight(this.squareSize, this.mapSize);
                 break;
 
             case 40: // Down
-                game.playerSquareOne.moveDown();
-                game.playerSquareTwo.moveDown();
+                game.playerSquareOne.moveDown(this.squareSize, this.mapSize);
+                game.playerSquareTwo.moveDown(this.squareSize, this.mapSize);
                 break;
         }
     }
