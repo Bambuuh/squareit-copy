@@ -4,15 +4,15 @@ var Game = (function () {
         this.lastTime = Date.now();
         this.mapGenerator = new MapGenerator();
         this.squareSize = 40;
-        this.playerSquareOne = new PlayerSquare(0, 0);
-        this.playerSquareTwo = new PlayerSquare(this.squareSize * 2, 0);
+        this.map = this.mapGenerator.generateMap(this.squareSize, this.mapSettings);
+        this.playerOne = new Player(0, 0, this.squareSize, this.map, 'red');
+        this.playerTwo = new Player(this.squareSize * 2, 0, this.squareSize, this.map, 'blue');
         this.mapSettings = {
             empty: [
                 { x: 1 * this.squareSize, y: 0 },
                 { x: 2 * this.squareSize, y: 2 * this.squareSize },
             ]
         };
-        this.map = this.mapGenerator.generateMap(this.squareSize, this.mapSettings);
         this.mapSize = {
             width: this.squareSize * 5,
             height: this.squareSize * 7,
@@ -24,27 +24,32 @@ var Game = (function () {
             _this.lastTime = now;
             requestAnimationFrame(_this.gameLoop);
         };
-        this.movePLayer = function (event) {
+        this.handleMovement = function (event) {
             switch (event.keyCode) {
                 case 37:
-                    game.playerSquareOne.moveLeft(_this.squareSize);
-                    game.playerSquareTwo.moveLeft(_this.squareSize);
+                    _this.moveplayerSquareLeft(_this.playerOne);
+                    _this.moveplayerSquareLeft(_this.playerTwo);
                     break;
                 case 38:
-                    game.playerSquareOne.moveUp(_this.squareSize);
-                    game.playerSquareTwo.moveUp(_this.squareSize);
+                    _this.moveplayerSquareUp(_this.playerOne);
+                    _this.moveplayerSquareUp(_this.playerTwo);
                     break;
                 case 39:
-                    game.playerSquareOne.moveRight(_this.squareSize, _this.mapSize);
-                    game.playerSquareTwo.moveRight(_this.squareSize, _this.mapSize);
+                    _this.moveplayerSquareRight(_this.playerOne);
+                    _this.moveplayerSquareRight(_this.playerTwo);
                     break;
                 case 40:
-                    game.playerSquareOne.moveDown(_this.squareSize, _this.mapSize);
-                    game.playerSquareTwo.moveDown(_this.squareSize, _this.mapSize);
+                    _this.moveplayerSquareDown(_this.playerOne);
+                    _this.moveplayerSquareDown(_this.playerTwo);
                     break;
             }
         };
     }
+    Game.prototype.startGame = function () {
+        this.visitTile(this.playerOne);
+        this.visitTile(this.playerTwo);
+        this.gameLoop();
+    };
     Game.prototype.setupCanvas = function (canvas) {
         this.canvas = canvas;
         this.context = this.canvas.getContext("2d");
@@ -52,31 +57,61 @@ var Game = (function () {
     Game.prototype.render = function () {
         this.context.clearRect(0, 0, this.mapSize.width, this.mapSize.height);
         this.drawMap();
-        this.drawPLayerSquares();
+        this.drawPLayer();
     };
     Game.prototype.drawMap = function () {
         var _this = this;
-        this.map.forEach(function (column) {
-            column.forEach(function (square) {
-                // if (this.mapSettings.empty.every(empty => empty.x !== square.getPosition().x || empty.y !== square.getPosition().y)) {
-                _this.context.fillStyle = square.getColor();
-                _this.context.fillRect(square.getPosition().x, square.getPosition().y, _this.squareSize, _this.squareSize);
-                // }
-            });
+        this.map.forEach(function (tile) {
+            _this.context.fillStyle = tile.getColor();
+            _this.context.fillRect(tile.getPosition().x, tile.getPosition().y, _this.squareSize, _this.squareSize);
         });
     };
-    Game.prototype.drawPLayerSquares = function () {
-        this.renderPlayer(this.playerSquareOne, 'red');
-        this.renderPlayer(this.playerSquareTwo, 'blue');
+    Game.prototype.drawPLayer = function () {
+        this.renderPlayer(this.playerOne, 'red');
+        this.renderPlayer(this.playerTwo, 'blue');
     };
-    Game.prototype.renderPlayer = function (playerSquare, color) {
+    Game.prototype.renderPlayer = function (player, color) {
         this.context.fillStyle = color; // #ffffe5
-        this.context.fillRect(playerSquare.getPosition().x, playerSquare.getPosition().y, this.squareSize, this.squareSize);
+        this.context.fillRect(player.getPosition().x, player.getPosition().y, this.squareSize, this.squareSize);
     };
     Game.prototype.resizeCanvas = function () {
         this.canvas.width = this.mapSize.width;
         this.canvas.height = this.mapSize.height;
         this.render();
+    };
+    Game.prototype.moveplayerSquareLeft = function (player) {
+        if (player.getPosition().x - this.squareSize >= 0) {
+            if (player.moveLeft()) {
+                this.visitTile(player);
+            }
+        }
+    };
+    Game.prototype.moveplayerSquareRight = function (player) {
+        if (player.getPosition().x < this.mapSize.width - this.squareSize) {
+            if (player.moveRight()) {
+                this.visitTile(player);
+            }
+        }
+    };
+    Game.prototype.moveplayerSquareUp = function (player) {
+        if (player.getPosition().y - this.squareSize >= 0) {
+            if (player.moveUp()) {
+                this.visitTile(player);
+            }
+        }
+    };
+    Game.prototype.moveplayerSquareDown = function (player) {
+        if (player.getPosition().y < this.mapSize.height - this.squareSize) {
+            if (player.moveDown()) {
+                this.visitTile(player);
+            }
+        }
+    };
+    Game.prototype.visitTile = function (player) {
+        var tile = this.map.filter(function (tile) {
+            return tile.getPosition().x === player.getPosition().x && tile.getPosition().y === player.getPosition().y;
+        })[0];
+        tile.visit(player.getColor());
     };
     return Game;
 }());

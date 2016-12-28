@@ -5,8 +5,10 @@ class Game {
     private mapGenerator = new MapGenerator();
     private squareSize = 40;
 
-    public playerSquareOne = new PlayerSquare(0, 0);
-    public playerSquareTwo = new PlayerSquare(this.squareSize * 2, 0);
+    private map = this.mapGenerator.generateMap(this.squareSize, this.mapSettings);
+
+    public playerOne = new Player(0, 0, this.squareSize, this.map, 'red');
+    public playerTwo = new Player(this.squareSize * 2, 0, this.squareSize, this.map, 'blue');
 
     private mapSettings = {
         empty: [
@@ -15,11 +17,16 @@ class Game {
         ]
     }
 
-    private map = this.mapGenerator.generateMap(this.squareSize, this.mapSettings);
 
     private mapSize = {
         width: this.squareSize * 5,
         height: this.squareSize * 7,
+    }
+
+    public startGame() {
+        this.visitTile(this.playerOne);
+        this.visitTile(this.playerTwo);
+        this.gameLoop()
     }
 
     public gameLoop = () => {
@@ -40,28 +47,24 @@ class Game {
     private render() {
         this.context.clearRect(0, 0, this.mapSize.width, this.mapSize.height);
         this.drawMap();
-        this.drawPLayerSquares();
+        this.drawPLayer();
     }
 
     private drawMap() {
-        this.map.forEach(column => {
-            column.forEach(square => {
-                // if (this.mapSettings.empty.every(empty => empty.x !== square.getPosition().x || empty.y !== square.getPosition().y)) {
-                    this.context.fillStyle = square.getColor();
-                    this.context.fillRect(square.getPosition().x, square.getPosition().y, this.squareSize, this.squareSize);
-                // }
-            });
+        this.map.forEach(tile => {
+            this.context.fillStyle = tile.getColor();
+            this.context.fillRect(tile.getPosition().x, tile.getPosition().y, this.squareSize, this.squareSize);
         });
     }
 
-    private drawPLayerSquares() {
-        this.renderPlayer(this.playerSquareOne, 'red');
-        this.renderPlayer(this.playerSquareTwo, 'blue');
+    private drawPLayer() {
+        this.renderPlayer(this.playerOne, 'red');
+        this.renderPlayer(this.playerTwo, 'blue');
     }
 
-    private renderPlayer(playerSquare: PlayerSquare, color: string) {
+    private renderPlayer(player: Player, color: string) {
         this.context.fillStyle = color // #ffffe5
-        this.context.fillRect(playerSquare.getPosition().x, playerSquare.getPosition().y, this.squareSize, this.squareSize);
+        this.context.fillRect(player.getPosition().x, player.getPosition().y, this.squareSize, this.squareSize);
     }
 
     public resizeCanvas() {
@@ -71,27 +74,66 @@ class Game {
         this.render();
     }
 
-    public movePLayer = (event) => {
+    public handleMovement = (event) => {
         switch (event.keyCode) {
             case 37: // Left
-                game.playerSquareOne.moveLeft(this.squareSize);
-                game.playerSquareTwo.moveLeft(this.squareSize);
+                this.moveplayerSquareLeft(this.playerOne);
+                this.moveplayerSquareLeft(this.playerTwo);
                 break;
 
             case 38: // Up
-                game.playerSquareOne.moveUp(this.squareSize);
-                game.playerSquareTwo.moveUp(this.squareSize);
+               this.moveplayerSquareUp(this.playerOne);
+               this.moveplayerSquareUp(this.playerTwo);
                 break;
 
             case 39: // Right
-                game.playerSquareOne.moveRight(this.squareSize, this.mapSize);
-                game.playerSquareTwo.moveRight(this.squareSize, this.mapSize);
+                this.moveplayerSquareRight(this.playerOne);
+                this.moveplayerSquareRight(this.playerTwo);
                 break;
 
             case 40: // Down
-                game.playerSquareOne.moveDown(this.squareSize, this.mapSize);
-                game.playerSquareTwo.moveDown(this.squareSize, this.mapSize);
+                this.moveplayerSquareDown(this.playerOne);
+                this.moveplayerSquareDown(this.playerTwo);
                 break;
         }
+    }
+
+    private moveplayerSquareLeft(player: Player) {
+        if (player.getPosition().x - this.squareSize >= 0) {
+            if(player.moveLeft()) {
+                this.visitTile(player);
+            }
+        }
+    }
+
+    private moveplayerSquareRight(player: Player) {
+        if (player.getPosition().x < this.mapSize.width - this.squareSize) {
+            if(player.moveRight()) {
+                this.visitTile(player);
+            }
+        }
+    }
+
+    private moveplayerSquareUp(player: Player) {
+        if (player.getPosition().y - this.squareSize >= 0) {
+            if(player.moveUp()) {
+                this.visitTile(player);
+            }
+        }
+    }
+
+    private moveplayerSquareDown(player: Player) {
+        if (player.getPosition().y < this.mapSize.height - this.squareSize) {
+            if(player.moveDown()) {
+                this.visitTile(player);
+            }
+        }
+    }
+
+    private visitTile(player: Player) {
+        const tile = this.map.filter(tile => {
+            return tile.getPosition().x === player.getPosition().x && tile.getPosition().y === player.getPosition().y;
+        })[0];
+        tile.visit(player.getColor());
     }
 }

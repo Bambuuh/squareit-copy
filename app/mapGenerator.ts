@@ -1,19 +1,38 @@
 class MapGenerator {
     
+    private playField = [
+        [0, 0, 0, 0, 0],
+        [0, 2, 2, 0, 0],
+        [0, 2, 2, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 2, 2, 2, 2],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+    ];
+
+    private currentMap: Tile[][];
+
     constructor() { }
 
-    public generateMap(squareSize: number, settings: {empty: {x:number, y:number}[], teleporter?: {x: number, y: number}[]}) {
-        const map: Square[][] = [];
+    public generateMap = (squareSize: number, settings: {empty: {x:number, y:number}[], teleporter?: {x: number, y: number}[]}) => {
+        const mapTiles: Tile[] = [];
+        this.playField.forEach((row, i) => {
+            row.forEach((type, j) => {
+                mapTiles.push(new Tile(j * squareSize, i * squareSize, squareSize, type, this.getTileColor(type)));
+            })
+        });
 
-        for (let i = 0; i < 5; i++) {
-            const column = [];
-            for (let j = 0; j < 7; j++) {
-                column.push(new FieldSquare(i * squareSize, j * squareSize));
-            }
-            map.push(column);
-        }
-
-        return map;
+        return mapTiles
     }
 
+    private getTileColor(type: number) {
+        switch (type) {
+            case 1:
+                return 'green';
+            case 2:
+                return '#ffffe5';
+            default:
+                return 'black';
+        }
+    }
 }
