@@ -25,4 +25,8 @@ class Tile extends Square {
     public canVisit() {
         return !this.visited && !this.empty;
     }
+
+    public isTeleporter() {
+        return this.teleporter;
+    }
 }

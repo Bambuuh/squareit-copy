@@ -28,6 +28,9 @@ var Tile = (function (_super) {
     Tile.prototype.canVisit = function () {
         return !this.visited && !this.empty;
     };
+    Tile.prototype.isTeleporter = function () {
+        return this.teleporter;
+    };
     return Tile;
 }(Square));
 //# sourceMappingURL=tile.js.map

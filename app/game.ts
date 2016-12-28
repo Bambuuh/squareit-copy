@@ -4,11 +4,13 @@ class Game {
     private lastTime = Date.now();
     private mapGenerator = new MapGenerator();
     private squareSize = 40;
+    private iconSize = this.squareSize / 4;
+    private lineWidth = 2;
 
     private map = this.mapGenerator.generateMap(this.squareSize, this.mapSettings);
 
-    public playerOne = new Player(0, 0, this.squareSize, this.map, 'red');
-    public playerTwo = new Player(this.squareSize * 2, 0, this.squareSize, this.map, 'blue');
+    public playerOne = new Player(this.map.startPositions[0].x, this.map.startPositions[0].y, this.squareSize, this.map.tiles, 'red');
+    public playerTwo = new Player(this.map.startPositions[1].x, this.map.startPositions[1].y, this.squareSize, this.map.tiles, 'blue');
 
     private mapSettings = {
         empty: [
@@ -51,9 +53,17 @@ class Game {
     }
 
     private drawMap() {
-        this.map.forEach(tile => {
+        this.map.tiles.forEach(tile => {
             this.context.fillStyle = tile.getColor();
             this.context.fillRect(tile.getPosition().x, tile.getPosition().y, this.squareSize, this.squareSize);
+
+            if(tile.isTeleporter() && tile.canVisit()) {
+                const centerPos = this.getSquareCenterPosition(tile.getPosition());
+                this.context.lineWidth = this.lineWidth;
+                this.context.beginPath();
+                this.context.arc(centerPos.x + (this.iconSize / 2), centerPos.y + (this.iconSize / 2), (this.iconSize / 2), 0, 2*Math.PI);
+                this.context.stroke();
+            }
         });
     }
 
@@ -65,6 +75,19 @@ class Game {
     private renderPlayer(player: Player, color: string) {
         this.context.fillStyle = color // #ffffe5
         this.context.fillRect(player.getPosition().x, player.getPosition().y, this.squareSize, this.squareSize);
+
+        const centerPos = this.getSquareCenterPosition(player.getPosition());
+
+        this.context.strokeStyle = 'white';
+        this.context.lineWidth = this.lineWidth;
+        this.context.strokeRect(centerPos.x, centerPos.y, this.squareSize/4, this.squareSize/4);
+    }
+
+    private getSquareCenterPosition(squarePosition: { x: number, y: number }) {
+        return {
+            x: squarePosition.x + (this.squareSize / 2) - (this.iconSize / 2),
+            y: squarePosition.y + (this.squareSize / 2) - (this.iconSize / 2),
+        }
     }
 
     public resizeCanvas() {
@@ -75,65 +98,74 @@ class Game {
     }
 
     public handleMovement = (event) => {
+        let teleportOne = undefined;
+        let teleportTwo = undefined;
         switch (event.keyCode) {
             case 37: // Left
-                this.moveplayerSquareLeft(this.playerOne);
-                this.moveplayerSquareLeft(this.playerTwo);
+                teleportOne = this.moveplayerSquareLeft(this.playerOne);
+                teleportTwo = this.moveplayerSquareLeft(this.playerTwo);
                 break;
 
             case 38: // Up
-               this.moveplayerSquareUp(this.playerOne);
-               this.moveplayerSquareUp(this.playerTwo);
+                teleportOne = this.moveplayerSquareUp(this.playerOne);
+                teleportTwo = this.moveplayerSquareUp(this.playerTwo);
                 break;
 
             case 39: // Right
-                this.moveplayerSquareRight(this.playerOne);
-                this.moveplayerSquareRight(this.playerTwo);
+                teleportOne = this.moveplayerSquareRight(this.playerOne);
+                teleportTwo = this.moveplayerSquareRight(this.playerTwo);
                 break;
 
             case 40: // Down
-                this.moveplayerSquareDown(this.playerOne);
-                this.moveplayerSquareDown(this.playerTwo);
+                teleportOne = this.moveplayerSquareDown(this.playerOne);
+                teleportTwo = this.moveplayerSquareDown(this.playerTwo);
                 break;
+        }
+
+        if ((teleportOne && teleportTwo) ||(!teleportOne && !teleportTwo)) {
+            return;
+        } else {
+            if(teleportOne) {
+                this.playerOne.teleportTo(teleportOne.position, teleportOne.tile);
+            }
+            if(teleportTwo) {
+                this.playerTwo.teleportTo(teleportTwo.position, teleportTwo.tile);
+            }
         }
     }
 
     private moveplayerSquareLeft(player: Player) {
         if (player.getPosition().x - this.squareSize >= 0) {
-            if(player.moveLeft()) {
-                this.visitTile(player);
-            }
+            return player.moveTo('left');
         }
     }
 
     private moveplayerSquareRight(player: Player) {
         if (player.getPosition().x < this.mapSize.width - this.squareSize) {
-            if(player.moveRight()) {
-                this.visitTile(player);
-            }
+            return player.moveTo('right');
         }
     }
 
     private moveplayerSquareUp(player: Player) {
         if (player.getPosition().y - this.squareSize >= 0) {
-            if(player.moveUp()) {
-                this.visitTile(player);
-            }
+            return player.moveTo('up');
         }
     }
 
     private moveplayerSquareDown(player: Player) {
         if (player.getPosition().y < this.mapSize.height - this.squareSize) {
-            if(player.moveDown()) {
-                this.visitTile(player);
-            }
+            return player.moveTo('down');
         }
     }
 
     private visitTile(player: Player) {
-        const tile = this.map.filter(tile => {
-            return tile.getPosition().x === player.getPosition().x && tile.getPosition().y === player.getPosition().y;
+        const tile = this.map.tiles.filter(tile => {
+            return this.isSamePosition(tile, player);
         })[0];
         tile.visit(player.getColor());
+    }
+
+    private isSamePosition(a: Square, b: Square) {
+        return a.getPosition().x === b.getPosition().x && a.getPosition().y === b.getPosition().y;
     }
 }
