@@ -7,9 +7,11 @@ var Game = (function () {
         this.iconSize = this.squareSize / 4;
         this.lineWidth = 2;
         this.maps = this.mapGenerator.getMaps(this.squareSize);
+        this.playerOneColor = 'rgb(128, 128, 128)';
+        this.playerTwoColor = 'rgb(0, 102, 102)';
         this.mapIndex = 0;
-        this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(15, 203, 255)');
-        this.playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(255, 67, 15)');
+        this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, this.playerOneColor);
+        this.playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, this.playerTwoColor);
         this.gameLoop = function () {
             var now = Date.now();
             var dt = (now - _this.lastTime) / 1000.0;
@@ -75,8 +77,8 @@ var Game = (function () {
     Game.prototype.resetMap = function () {
         this.resizeCanvas();
         this.maps[this.mapIndex] = this.mapGenerator.generateMapByIndex(this.squareSize, this.mapIndex);
-        this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(15, 203, 255)');
-        this.playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(255, 67, 15)');
+        this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, this.playerOneColor);
+        this.playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, this.playerTwoColor);
         this.visitTile(this.playerOne);
         this.visitTile(this.playerTwo);
     };

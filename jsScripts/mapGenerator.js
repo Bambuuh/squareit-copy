@@ -63,7 +63,7 @@ var MapGenerator = (function () {
             case 2:
                 return '#ffffe5';
             default:
-                return 'black';
+                return '#acb534';
         }
     };
     return MapGenerator;

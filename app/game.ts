@@ -8,12 +8,14 @@ class Game {
     private lineWidth = 2;
 
     private maps = this.mapGenerator.getMaps(this.squareSize);
+    private playerOneColor = 'rgb(128, 128, 128)';
+    private playerTwoColor = 'rgb(0, 102, 102)';
 
     private mapIndex = 0;
     private mapPickerELement: Element;
 
-    public playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(15, 203, 255)');
-    public playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(255, 67, 15)');
+    public playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, this.playerOneColor);
+    public playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, this.playerTwoColor);
 
     constructor() {
         this.mapPickerELement = document.getElementById('counter');
@@ -48,8 +50,8 @@ class Game {
     private resetMap() {
         this.resizeCanvas();
         this.maps[this.mapIndex] = this.mapGenerator.generateMapByIndex(this.squareSize, this.mapIndex);
-        this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(15, 203, 255)');
-        this.playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(255, 67, 15)');
+        this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, this.playerOneColor);
+        this.playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, this.playerTwoColor);
         this.visitTile(this.playerOne);
         this.visitTile(this.playerTwo);
     }
