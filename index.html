@@ -5,11 +5,21 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Square it</title>
+    <link rel="stylesheet" type="text/css" href="lib/font-awesome-4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" type="text/css" href="app/styles.css"/>
 </head>
 
 <body>
-    <canvas id="cnvs" width="100px", height="100%"></canvas>
+    <div class="game-container">
+        <div id="map-picker" class="options-container">
+            <i class="fa fa-long-arrow-left"></i>
+            <div id="counter"></div>
+            <i class="fa fa-long-arrow-right"></i>
+        </div>
+        <canvas id="cnvs" width="100px", height="100%"></canvas>
+        <div class="options-container"><i class="fa fa-undo"></i></div>
+    </div>
+
     <script src="jsScripts/mapGenerator.js"></script>
     <script src="jsScripts/square.js"></script>
     <script src="jsScripts/tile.js"></script>

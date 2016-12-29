@@ -2,6 +2,12 @@ class Player extends Square {
 
     private map: Tile[];
 
+    private rgb = {
+        r: 209,
+        g: 150,
+        b:0,
+    };
+
     constructor(x: number, y: number, squareSize: number, map: Tile[],  color: string) {
         super(x, y, squareSize, color);
         this.map = map;
@@ -65,5 +71,14 @@ class Player extends Square {
 
     private getTeleportTile(nextTile: Tile) {
         return this.map.filter(tile => tile.isTeleporter() && (tile.getPosition().x !== nextTile.getPosition().x || tile.getPosition().y !== nextTile.getPosition().y))[0];
+    }
+
+    private generateShade() {
+        const max = 200;
+        const min = 150;
+
+        this.rgb.g = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        this.color = `rgb(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b})`;
     }
 }

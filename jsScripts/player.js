@@ -7,6 +7,11 @@ var Player = (function (_super) {
     __extends(Player, _super);
     function Player(x, y, squareSize, map, color) {
         var _this = _super.call(this, x, y, squareSize, color) || this;
+        _this.rgb = {
+            r: 209,
+            g: 150,
+            b: 0,
+        };
         _this.map = map;
         return _this;
     }
@@ -62,6 +67,12 @@ var Player = (function (_super) {
     };
     Player.prototype.getTeleportTile = function (nextTile) {
         return this.map.filter(function (tile) { return tile.isTeleporter() && (tile.getPosition().x !== nextTile.getPosition().x || tile.getPosition().y !== nextTile.getPosition().y); })[0];
+    };
+    Player.prototype.generateShade = function () {
+        var max = 200;
+        var min = 150;
+        this.rgb.g = Math.floor(Math.random() * (max - min + 1)) + min;
+        this.color = "rgb(" + this.rgb.r + ", " + this.rgb.g + ", " + this.rgb.b + ")";
     };
     return Player;
 }(Square));

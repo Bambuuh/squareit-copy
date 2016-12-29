@@ -7,22 +7,51 @@ class Game {
     private iconSize = this.squareSize / 4;
     private lineWidth = 2;
 
-    private map = this.mapGenerator.generateMap(this.squareSize, this.mapSettings);
+    private maps = this.mapGenerator.getMaps(this.squareSize);
 
-    public playerOne = new Player(this.map.startPositions[0].x, this.map.startPositions[0].y, this.squareSize, this.map.tiles, 'red');
-    public playerTwo = new Player(this.map.startPositions[1].x, this.map.startPositions[1].y, this.squareSize, this.map.tiles, 'blue');
+    private mapIndex = 0;
+    private mapPickerELement: Element;
 
-    private mapSettings = {
-        empty: [
-            {x:1 * this.squareSize, y:0},
-            {x: 2 * this.squareSize, y: 2 * this.squareSize},
-        ]
+    public playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(15, 203, 255)');
+    public playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(255, 67, 15)');
+
+    constructor() {
+        this.mapPickerELement = document.getElementById('counter');
+        this.mapPickerELement.innerHTML = `# ${this.mapIndex + 1}`;
+
+        const undoButton = document.getElementsByClassName('fa-undo')[0];
+        undoButton.addEventListener('click', (event) => this.resetMap());
+
+        const previousButton = document.getElementsByClassName('fa-long-arrow-left')[0];
+        previousButton.addEventListener('click', (event) => this.getPreviousMap());
+
+        const nextButton = document.getElementsByClassName('fa-long-arrow-right')[0];
+        nextButton.addEventListener('click', (event) => this.getNextMap());
     }
 
+    private getCurrentMap() {
+        return this.maps[this.mapIndex];
+    }
 
-    private mapSize = {
-        width: this.squareSize * 5,
-        height: this.squareSize * 7,
+    private getNextMap() {
+        this.mapIndex = this.mapIndex + 1 < this.maps.length ? this.mapIndex + 1 : 0;
+        this.resetMap();
+        this.mapPickerELement.innerHTML = `# ${this.mapIndex + 1}`;
+    }
+
+    private getPreviousMap() {
+        this.mapIndex = this.mapIndex - 1 >= 0 ? this.mapIndex - 1 : this.maps.length -1;
+        this.resetMap();
+        this.mapPickerELement.innerHTML = `# ${this.mapIndex + 1}`;
+    }
+
+    private resetMap() {
+        this.resizeCanvas();
+        this.maps[this.mapIndex] = this.mapGenerator.generateMapByIndex(this.squareSize, this.mapIndex);
+        this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(15, 203, 255)');
+        this.playerTwo = new Player(this.getCurrentMap().startPositions[1].x, this.getCurrentMap().startPositions[1].y, this.squareSize, this.getCurrentMap().tiles, 'rgb(255, 67, 15)');
+        this.visitTile(this.playerOne);
+        this.visitTile(this.playerTwo);
     }
 
     public startGame() {
@@ -47,13 +76,13 @@ class Game {
     }
 
     private render() {
-        this.context.clearRect(0, 0, this.mapSize.width, this.mapSize.height);
+        this.context.clearRect(0, 0, this.getCurrentMap().dimensions.width, this.getCurrentMap().dimensions.height);
         this.drawMap();
         this.drawPLayer();
     }
 
     private drawMap() {
-        this.map.tiles.forEach(tile => {
+        this.getCurrentMap().tiles.forEach(tile => {
             this.context.fillStyle = tile.getColor();
             this.context.fillRect(tile.getPosition().x, tile.getPosition().y, this.squareSize, this.squareSize);
 
@@ -68,12 +97,12 @@ class Game {
     }
 
     private drawPLayer() {
-        this.renderPlayer(this.playerOne, 'red');
-        this.renderPlayer(this.playerTwo, 'blue');
+        this.renderPlayer(this.playerOne);
+        this.renderPlayer(this.playerTwo);
     }
 
-    private renderPlayer(player: Player, color: string) {
-        this.context.fillStyle = color // #ffffe5
+    private renderPlayer(player: Player) {
+        this.context.fillStyle = player.getColor(); // #ffffe5
         this.context.fillRect(player.getPosition().x, player.getPosition().y, this.squareSize, this.squareSize);
 
         const centerPos = this.getSquareCenterPosition(player.getPosition());
@@ -91,8 +120,8 @@ class Game {
     }
 
     public resizeCanvas() {
-        this.canvas.width = this.mapSize.width;
-        this.canvas.height = this.mapSize.height;
+        this.canvas.width = this.getCurrentMap().dimensions.width;
+        this.canvas.height = this.getCurrentMap().dimensions.height;
 
         this.render();
     }
@@ -141,7 +170,7 @@ class Game {
     }
 
     private moveplayerSquareRight(player: Player) {
-        if (player.getPosition().x < this.mapSize.width - this.squareSize) {
+        if (player.getPosition().x < this.getCurrentMap().dimensions.width - this.squareSize) {
             return player.moveTo('right');
         }
     }
@@ -153,13 +182,13 @@ class Game {
     }
 
     private moveplayerSquareDown(player: Player) {
-        if (player.getPosition().y < this.mapSize.height - this.squareSize) {
+        if (player.getPosition().y < this.getCurrentMap().dimensions.height - this.squareSize) {
             return player.moveTo('down');
         }
     }
 
     private visitTile(player: Player) {
-        const tile = this.map.tiles.filter(tile => {
+        const tile = this.getCurrentMap().tiles.filter(tile => {
             return this.isSamePosition(tile, player);
         })[0];
         tile.visit(player.getColor());
