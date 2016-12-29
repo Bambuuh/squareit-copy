@@ -47,7 +47,7 @@ class Game {
         this.mapPickerELement.innerHTML = `# ${this.mapIndex + 1}`;
     }
 
-    private resetMap() {
+    public resetMap() {
         this.resizeCanvas();
         this.maps[this.mapIndex] = this.mapGenerator.generateMapByIndex(this.squareSize, this.mapIndex);
         this.playerOne = new Player(this.getCurrentMap().startPositions[0].x, this.getCurrentMap().startPositions[0].y, this.squareSize, this.getCurrentMap().tiles, this.playerOneColor);
@@ -150,6 +150,10 @@ class Game {
             case 40: // Down
                 teleportOne = this.moveplayerSquareDown(this.playerOne);
                 teleportTwo = this.moveplayerSquareDown(this.playerTwo);
+                break;
+            
+             case 82: // R
+                this.resetMap();
                 break;
         }
 

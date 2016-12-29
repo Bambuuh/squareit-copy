@@ -39,6 +39,9 @@ var Game = (function () {
                     teleportOne = _this.moveplayerSquareDown(_this.playerOne);
                     teleportTwo = _this.moveplayerSquareDown(_this.playerTwo);
                     break;
+                case 82:
+                    _this.resetMap();
+                    break;
             }
             if ((teleportOne && teleportTwo) || (!teleportOne && !teleportTwo)) {
                 return;
